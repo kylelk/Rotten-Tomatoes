@@ -84,7 +84,7 @@ class RottenTomatoes:
         """
         cache = Cache()
         result = cache.get(query, page_number)
-        if result != None:
+        if result:
             # print "using cache"
             movie_json = result[0]
         else:
