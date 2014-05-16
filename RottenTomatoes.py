@@ -59,7 +59,6 @@ class Cache(object):
 
             return c.execute(query, (search_query, page_number, cache_expiration)).fetchone()
 
-
     def put(self, search_query, page_number, search_results):
         """
             put the results into the database
