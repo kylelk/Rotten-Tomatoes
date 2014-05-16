@@ -107,5 +107,3 @@ class RottenTomatoes:
 
         movie_dict = json.loads(movie_json)
         return movie_dict
-
-
