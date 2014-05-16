@@ -32,7 +32,8 @@ cache_expiration = 60 * 60  # one hour
 
 
 class Cache(object):
-    def get_conn(self):
+    @staticmethod
+    def get_conn():
         """
             connect with the sqlite database
         """
