@@ -43,7 +43,7 @@ class Cache(object):
             search_query TEXT PRIMARY KEY,
             page_number INT,
             timestamp INTEGER,
-            search_results BLOB); """)
+            search_results BLOB)""")
         return conn
 
     def get(self, search_query, page_number):
@@ -68,7 +68,7 @@ class Cache(object):
             c = conn.cursor()
             insert = """INSERT OR REPLACE INTO movies
                         (search_query, page_number, timestamp, search_results)
-                        VALUES (?, ?, ?, ?); """
+                        VALUES (?, ?, ?, ?)"""
 
             c.execute(insert, (search_query, page_number, timestamp, search_results,))
             conn.commit()
