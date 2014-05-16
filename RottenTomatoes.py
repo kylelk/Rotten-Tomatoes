@@ -62,17 +62,14 @@ class Cache:
         """
             put the results into the database
         """
-        timestamp = int( time.time() )
+        timestamp = int(time.time())
         with self.get_conn() as conn:
             c = conn.cursor()
-            insert = """ INSERT OR REPLACE INTO movies
-                (search_query, page_number, timestamp, search_results) VALUES
-                (\"{search_query}\", {page_number}, {timestamp}, ?); """
-            
-            insert = insert.format(search_query = search_query,
-                                   page_number = page_number,
-                                   timestamp = timestamp)
-            c.execute(insert, (search_results,))
+            insert = """INSERT OR REPLACE INTO movies
+                        (search_query, page_number, timestamp, search_results)
+                        VALUES (?, ?, ?, ?); """
+
+            c.execute(insert, (search_query, page_number, timestamp, search_results,))
             conn.commit()
 
 class RottenTomatoes:
