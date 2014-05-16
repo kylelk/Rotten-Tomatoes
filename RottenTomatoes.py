@@ -28,7 +28,8 @@ import time
 # sqlite database file
 cache_database = "movies.db"
 # how many seconds before the entry expires
-cache_expiration = 60*60  # one hour
+cache_expiration = 60 * 60  # one hour
+
 
 class Cache:
     def get_conn(self):
@@ -43,7 +44,7 @@ class Cache:
             timestamp INTEGER,
             search_results BLOB); """)
         return conn
-    
+
     def get(self, search_query, page_number):
         """
             get the search results from the database
@@ -54,7 +55,7 @@ class Cache:
                 search_query = ? AND
                 page_number = ? AND
                 (strftime('%s', 'now') - timestamp) < ?"""
-            
+
             return c.execute(query, (search_query, page_number, cache_expiration)).fetchone()
 
 
@@ -72,11 +73,11 @@ class Cache:
             c.execute(insert, (search_query, page_number, timestamp, search_results,))
             conn.commit()
 
+
 class RottenTomatoes:
-    
     api_key = ""
     userAgent = "MovieInfoBot/1.0"
-    
+
     def search(self, query, results_per_page=25, page_number=1):
         """
             searches for movies: movie name, result limit, page number
@@ -98,12 +99,12 @@ class RottenTomatoes:
             param["results_per_page"] = results_per_page
             param["page_number"] = page_number
             url = url.format(**param)
-            req = urllib2.Request(url, headers={ 'User-Agent': self.userAgent })
+            req = urllib2.Request(url, headers={'User-Agent': self.userAgent})
             movie_json = urllib2.urlopen(req).read()
-            
+
             # put the results into the movie cache
             cache.put(query, page_number, movie_json)
-        
+
         movie_dict = json.loads(movie_json)
         return movie_dict
 
