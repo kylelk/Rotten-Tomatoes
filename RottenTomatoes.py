@@ -31,7 +31,7 @@ cache_database = "movies.db"
 cache_expiration = 60 * 60  # one hour
 
 
-class Cache:
+class Cache(object):
     def get_conn(self):
         """
             connect with the sqlite database
@@ -74,7 +74,7 @@ class Cache:
             conn.commit()
 
 
-class RottenTomatoes:
+class RottenTomatoes(object):
     api_key = ""
     userAgent = "MovieInfoBot/1.0"
 
