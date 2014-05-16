@@ -52,10 +52,10 @@ class Cache(object):
         """
         with self.get_conn() as conn:
             c = conn.cursor()
-            query = """SELECT search_results FROM movies WHERE
-                search_query = ? AND
-                page_number = ? AND
-                (strftime('%s', 'now') - timestamp) < ?"""
+            query = """SELECT search_results FROM movies
+                       WHERE search_query = ?
+                       AND page_number = ?
+                       AND strftime('%s', 'now') - timestamp < ?"""
 
             return c.execute(query, (search_query, page_number, cache_expiration)).fetchone()
 
