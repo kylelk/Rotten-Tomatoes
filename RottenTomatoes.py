@@ -28,10 +28,12 @@ import time
 # sqlite database file
 cache_database = "movies.db"
 # how many seconds before the entry expires
-cache_expiration = 60*60  # one hour
+cache_expiration = 60 * 60  # one hour
 
-class Cache:
-    def get_conn(self):
+
+class Cache(object):
+    @staticmethod
+    def get_conn():
         """
             connect with the sqlite database
         """
@@ -41,52 +43,48 @@ class Cache:
             search_query TEXT PRIMARY KEY,
             page_number INT,
             timestamp INTEGER,
-            search_results BLOB); """)
+            search_results BLOB)""")
         return conn
-    
+
     def get(self, search_query, page_number):
         """
             get the search results from the database
         """
         with self.get_conn() as conn:
             c = conn.cursor()
-            query = """SELECT search_results FROM movies WHERE
-                search_query = ? AND
-                page_number = ? AND
-                (strftime('%s', 'now') - timestamp) < ?"""
-            
-            return c.execute(query, (search_query, page_number, cache_expiration)).fetchone()
+            query = """SELECT search_results FROM movies
+                       WHERE search_query = ?
+                       AND page_number = ?
+                       AND strftime('%s', 'now') - timestamp < ?"""
 
+            return c.execute(query, (search_query, page_number, cache_expiration)).fetchone()
 
     def put(self, search_query, page_number, search_results):
         """
             put the results into the database
         """
-        timestamp = int( time.time() )
+        timestamp = int(time.time())
         with self.get_conn() as conn:
             c = conn.cursor()
-            insert = """ INSERT OR REPLACE INTO movies
-                (search_query, page_number, timestamp, search_results) VALUES
-                (\"{search_query}\", {page_number}, {timestamp}, ?); """
-            
-            insert = insert.format(search_query = search_query,
-                                   page_number = page_number,
-                                   timestamp = timestamp)
-            c.execute(insert, (search_results,))
+            insert = """INSERT OR REPLACE INTO movies
+                        (search_query, page_number, timestamp, search_results)
+                        VALUES (?, ?, ?, ?)"""
+
+            c.execute(insert, (search_query, page_number, timestamp, search_results,))
             conn.commit()
 
-class RottenTomatoes:
-    
+
+class RottenTomatoes(object):
     api_key = ""
     userAgent = "MovieInfoBot/1.0"
-    
+
     def search(self, query, results_per_page=25, page_number=1):
         """
             searches for movies: movie name, result limit, page number
         """
         cache = Cache()
         result = cache.get(query, page_number)
-        if result != None:
+        if result:
             # print "using cache"
             movie_json = result[0]
         else:
@@ -101,13 +99,11 @@ class RottenTomatoes:
             param["results_per_page"] = results_per_page
             param["page_number"] = page_number
             url = url.format(**param)
-            req = urllib2.Request(url, headers={ 'User-Agent': self.userAgent })
+            req = urllib2.Request(url, headers={'User-Agent': self.userAgent})
             movie_json = urllib2.urlopen(req).read()
-            
+
             # put the results into the movie cache
             cache.put(query, page_number, movie_json)
-        
+
         movie_dict = json.loads(movie_json)
         return movie_dict
-
-
